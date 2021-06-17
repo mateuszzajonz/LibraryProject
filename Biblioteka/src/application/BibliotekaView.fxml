@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <AnchorPane fx:id="Login" prefHeight="500.0" prefWidth="700.0" visible="false">
+         <children>
+            <TextField fx:id="Login_login" layoutX="276.0" layoutY="61.0" promptText="Login" />
+            <TextField fx:id="Login_password" layoutX="276.0" layoutY="98.0" promptText="Hasło" />
+            <Button fx:id="Login_btn" layoutX="318.0" layoutY="136.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="65.0" text="Zaloguj" />
+            <Button fx:id="Login_register" layoutX="589.0" layoutY="361.0" mnemonicParsing="false" text="Zarejestruj się" />
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="Library_app" prefHeight="500.0" prefWidth="700.0">
+         <children>
+            <TabPane prefHeight="500.0" prefWidth="700.0" tabClosingPolicy="UNAVAILABLE">
+              <tabs>
+                <Tab text="Książki">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <TableView layoutY="87.0" prefHeight="384.0" prefWidth="700.0">
+                                <columns>
+                                  <TableColumn prefWidth="71.0" text="Nr" />
+                                  <TableColumn prefWidth="79.0" text="C2" />
+                                </columns>
+                              </TableView>
+                              <TextField layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="194.0" promptText="Autor" />
+                              <TextField layoutX="14.0" layoutY="49.0" prefHeight="25.0" prefWidth="197.0" promptText="Tytuł" />
+                              <ComboBox layoutX="230.0" layoutY="14.0" prefWidth="150.0" promptText="Rodzaj" />
+                              <Button layoutX="499.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Szukaj" />
+                              <Button layoutX="499.0" layoutY="49.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Wyczyść" />
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+                <Tab text="Untitled Tab 2">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                  </content>
+                </Tab>
+              </tabs>
+            </TabPane>
+         </children></AnchorPane>
+      <AnchorPane fx:id="Register" prefHeight="500.0" prefWidth="700.0" visible="false">
+         <children>
+            <TextField fx:id="Register_Password2" layoutX="276.0" layoutY="175.0" promptText="Powtórz Hasło" />
+            <TextField fx:id="Register_Name" layoutX="276.0" layoutY="33.0" promptText="Imię" />
+            <TextField fx:id="Register_Surname" layoutX="276.0" layoutY="68.0" promptText="Nazwisko" />
+            <TextField fx:id="Register_Email" layoutX="276.0" layoutY="103.0" promptText="Email" />
+            <TextField fx:id="Register_Password" layoutX="276.0" layoutY="138.0" promptText="Hasło" />
+            <Button fx:id="Register_Register" layoutX="276.0" layoutY="209.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Zarejestruj się" />
+            <Button fx:id="Register_btn" layoutX="578.0" layoutY="346.0" mnemonicParsing="false" text="Powrót" />
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>
