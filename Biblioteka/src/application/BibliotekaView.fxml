@@ -19,13 +19,14 @@
    <children>
       <AnchorPane fx:id="Register" prefHeight="500.0" prefWidth="700.0" visible="false">
          <children>
-            <TextField fx:id="Register_password2" layoutX="276.0" layoutY="175.0" promptText="Powtórz Hasło" />
+            <TextField fx:id="Register_password2" layoutX="276.0" layoutY="207.0" promptText="Powtórz Hasło" />
             <TextField fx:id="Register_name" layoutX="276.0" layoutY="33.0" promptText="Imię" />
             <TextField fx:id="Register_surname" layoutX="276.0" layoutY="68.0" promptText="Nazwisko" />
             <TextField fx:id="Register_email" layoutX="276.0" layoutY="103.0" promptText="Email" />
-            <TextField fx:id="Register_password" layoutX="276.0" layoutY="138.0" promptText="Hasło" />
-            <Button fx:id="Register_register" layoutX="276.0" layoutY="209.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Zarejestruj się" />
+            <TextField fx:id="Register_password" layoutX="276.0" layoutY="172.0" promptText="Hasło" />
+            <Button fx:id="Register_register" layoutX="276.0" layoutY="238.0" mnemonicParsing="false" onAction="#register" prefHeight="25.0" prefWidth="149.0" text="Zarejestruj się" />
             <Button fx:id="Register_back" layoutX="578.0" layoutY="346.0" mnemonicParsing="false" text="Powrót" />
+            <TextField fx:id="Register_address" layoutX="276.0" layoutY="138.0" promptText="Adres" />
          </children>
       </AnchorPane>
       <AnchorPane fx:id="Login" prefHeight="500.0" prefWidth="700.0">
@@ -33,29 +34,29 @@
             <TextField fx:id="Login_login" layoutX="276.0" layoutY="61.0" promptText="Login" />
             <TextField fx:id="Login_password" layoutX="276.0" layoutY="98.0" promptText="Hasło" />
             <Button fx:id="Login_btn" layoutX="318.0" layoutY="136.0" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="65.0" text="Zaloguj" />
-            <Button fx:id="Login_register" layoutX="589.0" layoutY="361.0" mnemonicParsing="false" text="Zarejestruj się" />
+            <Button fx:id="Login_register" layoutX="589.0" layoutY="361.0" mnemonicParsing="false" onAction="#registerChange" text="Zarejestruj się" />
          </children>
       </AnchorPane>
       <AnchorPane fx:id="Library" prefHeight="500.0" prefWidth="700.0" visible="false">
          <children>
             <TabPane fx:id="TabPanel" prefHeight="500.0" prefWidth="700.0" tabClosingPolicy="UNAVAILABLE">
               <tabs>
-                <Tab fx:id="Books" text="Książki">
+                <Tab fx:id="Books" onSelectionChanged="#Books_Tab" text="Książki">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
                               <TableView fx:id="Books_tableview" layoutY="87.0" prefHeight="345.0" prefWidth="700.0">
                                 <columns>
-                                  <TableColumn prefWidth="47.0" text="ID" />
-                                  <TableColumn prefWidth="164.0" text="Autor" />
-                                    <TableColumn prefWidth="208.0" text="Tytuł" />
-                                    <TableColumn prefWidth="107.0" text="Stan" />
-                                    <TableColumn prefWidth="69.0" text="Ilość" />
-                                    <TableColumn prefWidth="104.0" text="Rodzaj" />
+                                  <TableColumn fx:id="Books_columnID" prefWidth="47.0" text="ID" />
+                                  <TableColumn fx:id="Books_columnAuthor" prefWidth="164.0" text="Autor" />
+                                    <TableColumn fx:id="Books_columnTitle" prefWidth="208.0" text="Tytuł" />
+                                    <TableColumn fx:id="Books_columnAvailability" prefWidth="107.0" text="Stan" />
+                                    <TableColumn fx:id="Books_columnAmount" prefWidth="69.0" text="Ilość" />
+                                    <TableColumn fx:id="Books_columnGenre" prefWidth="104.0" text="Rodzaj" />
                                 </columns>
                               </TableView>
-                              <TextField fx:id="Books_autor" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="194.0" promptText="Autor" />
-                              <TextField fx:id="Books_title" layoutX="14.0" layoutY="49.0" prefHeight="25.0" prefWidth="197.0" promptText="Tytuł" />
+                              <TextField fx:id="Books_author" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="195.0" promptText="Autor" />
+                              <TextField fx:id="Books_title" layoutX="14.0" layoutY="49.0" prefHeight="25.0" prefWidth="195.0" promptText="Tytuł" />
                               <ComboBox fx:id="Books_type" layoutX="230.0" layoutY="14.0" prefWidth="150.0" promptText="Rodzaj" />
                               <Button fx:id="Books_search" layoutX="499.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Szukaj" />
                               <Button fx:id="Books_clear" layoutX="499.0" layoutY="49.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Wyczyść" />
@@ -124,7 +125,7 @@
                                                    </font>
                                                 </Label>
                                                 <TextField fx:id="Rental_bid" editable="false" promptText="ID" />
-                                                <TextField fx:id="Rental_autor" editable="false" promptText="Autor" />
+                                                <TextField fx:id="Rental_author" editable="false" promptText="Autor" />
                                                 <TextField fx:id="Rental_title" editable="false" promptText="Tytuł" />
                                                 <TextField fx:id="Rental_type" editable="false" promptText="Rodzaj" />
                                              </children>
