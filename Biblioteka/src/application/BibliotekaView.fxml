@@ -81,7 +81,7 @@
 											<children>
 												<Button fx:id="Books_rent" minHeight="25.0" mnemonicParsing="false" prefWidth="90.0" text="Wypożycz" />
 												<Button fx:id="Books_addbook" minHeight="25.0" mnemonicParsing="false" prefWidth="90.0" text="Dodaj" />
-												<Button fx:id="Books_delbook" mnemonicParsing="false" prefHeight="25.0" prefWidth="90.0" text="Usuń" />
+												<Button fx:id="Books_delbook" mnemonicParsing="false" onAction="#Books_DeleteBook" prefHeight="25.0" prefWidth="90.0" text="Usuń" />
 												<Button fx:id="Books_editbook" mnemonicParsing="false" prefHeight="25.0" prefWidth="90.0" text="Edytuj" />
 											</children>
 											<padding>

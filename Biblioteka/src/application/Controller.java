@@ -264,12 +264,16 @@ public class Controller {
 		Users_tableview.setItems(obslist_users);
 	}
 
-	public void Books_Tab(Event event) {
+	public void Books_Tab(Event event) {		
 		loadDB();
+		BooksDB();
+	}
+
+	public void BooksDB()
+	{
 		Books_tableview.getItems().clear();
 		try {
 			Connection con = ds.getConnection();
-
 			PreparedStatement pstmt = con.prepareStatement("Select * from Books");
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -298,4 +302,21 @@ public class Controller {
 			System.out.print("B³¹d" + e);
 		}
 	}
+	
+	public void Books_DeleteBook(ActionEvent event) {
+		try {
+			Connection con = ds.getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM Books WHERE ID = ?");
+			Books book = Books_tableview.getSelectionModel().getSelectedItem();
+			ps.setInt(1, book.getbooksID());
+			ps.executeUpdate();
+			ps.close();
+			con.close();
+		} catch (SQLException e) {
+			System.out.print("B³¹d" + e);
+		}
+		BooksDB();
+	}
+	
+	
 }
