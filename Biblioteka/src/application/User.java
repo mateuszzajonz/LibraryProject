@@ -68,6 +68,18 @@ public class User {
 		this.Password = password;
 		this.Permissions = permissions;
 	}
+	public User(String userID, String name, String surname, String email, String pesel, String address, String password,
+			String permissions) {
+		super();
+		UserID = userID;
+		Name = name;
+		Surname = surname;
+		Email = email;
+		Pesel = pesel;
+		Address = address;
+		Password = password;
+		Permissions = permissions;
+	}
 	public User(String userID, String name, String surname, String pesel, String address) {
 		super();
 		this.UserID = userID;
