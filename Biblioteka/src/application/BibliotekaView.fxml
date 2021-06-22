@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -17,7 +18,7 @@
 
 <AnchorPane prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
 	<children>
-		<AnchorPane fx:id="Register" prefHeight="500.0" prefWidth="700.0">
+		<AnchorPane fx:id="Register" prefHeight="500.0" prefWidth="700.0" visible="false">
 			<children>
 				<Button fx:id="Register_back" layoutX="611.0" layoutY="452.0" mnemonicParsing="false" onAction="#goBack" text="Powrót" />
 				<VBox layoutX="225.0" layoutY="14.0" prefHeight="277.0" prefWidth="250.0" spacing="20.0">
@@ -27,8 +28,8 @@
 						<TextField fx:id="Register_email" promptText="Email" />
 						<TextField fx:id="Register_pesel" promptText="Pesel" />
 						<TextField fx:id="Register_address" promptText="Adres" />
-						<TextField fx:id="Register_password" promptText="Hasło" />
-						<TextField fx:id="Register_password2" promptText="Powtórz Hasło" />
+                  <PasswordField fx:id="Register_password" promptText="Hasło" />
+                  <PasswordField fx:id="Register_password2" promptText="Powtórz hasło" />
 						<Button fx:id="Register_register" mnemonicParsing="false" onAction="#register" prefHeight="86.0" prefWidth="204.0" text="Zarejestruj się" />
 					</children>
 					<padding>
@@ -37,10 +38,10 @@
 				</VBox>
 			</children>
 		</AnchorPane>
-		<AnchorPane fx:id="Login" prefHeight="500.0" prefWidth="700.0" visible="false">
+		<AnchorPane fx:id="Login" prefHeight="500.0" prefWidth="700.0">
 			<children>
 				<TextField fx:id="Login_login" layoutX="276.0" layoutY="61.0" promptText="Login" />
-				<TextField fx:id="Login_password" layoutX="276.0" layoutY="98.0" promptText="Hasło" />
+            <PasswordField fx:id="Login_password" layoutX="276.0" layoutY="96.0" promptText="Hasło" />
 				<Button fx:id="Login_btn" layoutX="318.0" layoutY="136.0" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="65.0" text="Zaloguj" />
 				<Button fx:id="Login_register" layoutX="589.0" layoutY="361.0" mnemonicParsing="false" onAction="#registerChange" text="Zarejestruj się" />
 			</children>
@@ -96,33 +97,34 @@
 							<content>
 								<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
 									<children>
-										<TableView fx:id="Users_tableview" layoutY="86.0" prefHeight="345.0" prefWidth="694.0">
+										<TableView fx:id="Users_tableview" layoutX="3.0" layoutY="83.0" prefHeight="345.0" prefWidth="694.0">
 											<columns>
-												<TableColumn fx:id="NrCol" prefWidth="75.0" text="Nr" />
-												<TableColumn fx:id="SurnameCol" prefWidth="122.0" text="Nazwisko" />
-												<TableColumn fx:id="NameCol" prefWidth="112.0" text="Imię" />
-												<TableColumn fx:id="PeselCol" prefWidth="106.0" text="Pesel" />
-												<TableColumn fx:id="AddressCol" prefWidth="284.0" text="Adres" />
+												<TableColumn fx:id="NrCol" prefWidth="40.0" text="Nr" />
+												<TableColumn fx:id="SurnameCol" text="Nazwisko" />
+												<TableColumn fx:id="NameCol" text="Imię" />
+												<TableColumn fx:id="PeselCol" text="Pesel" />
+                                    <TableColumn fx:id="EmailCol" prefWidth="108.0" text="Email" />
+                                    <TableColumn fx:id="PasswordCol" minWidth="3.0" prefWidth="82.0" text="Hasło" />
+                                    <TableColumn fx:id="PermissionCol" prefWidth="102.0" text="Uprawnienia" />
+                                    <TableColumn fx:id="AddressCol" prefWidth="121.0" text="Adres" />
 											</columns>
 										</TableView>
-										<TextField fx:id="Users_surname" layoutX="14.0" layoutY="14.0" promptText="Naziwsko" />
-										<TextField fx:id="Users_name" layoutX="14.0" layoutY="46.0" promptText="Imię" />
-										<TextField fx:id="Users_pesel" layoutX="177.0" layoutY="14.0" promptText="PESEL" />
-										<TextField fx:id="Users_miasto" layoutX="177.0" layoutY="46.0" promptText="Miasto" />
-										<Button fx:id="Users_search" layoutX="499.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Szukaj" />
-										<Button fx:id="Users_clear" layoutX="499.0" layoutY="49.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Wyczyść" />
+										<Button fx:id="Users_search" layoutX="499.0" layoutY="14.0" mnemonicParsing="false" onAction="#Select_User" prefHeight="25.0" prefWidth="149.0" text="Szukaj" />
+										<Button fx:id="Users_clear" layoutX="499.0" layoutY="49.0" mnemonicParsing="false" onAction="#Clear_User" prefHeight="25.0" prefWidth="149.0" text="Wyczyść" />
 										<HBox layoutY="428.0" prefHeight="41.0" prefWidth="700.0" spacing="20.0">
 											<children>
-												<Button fx:id="Users_rent" minHeight="25.0" mnemonicParsing="false" prefWidth="90.0" text="Wypożycz" />
-												<Button fx:id="Users_adduser" minHeight="25.0" mnemonicParsing="false" prefWidth="120.0" text="Dodaj Użytkownika" />
-												<Button fx:id="Users_deluser" mnemonicParsing="false" prefHeight="25.0" prefWidth="90.0" text="Usuń" />
-												<Button fx:id="Users_edituser" mnemonicParsing="false" prefHeight="25.0" prefWidth="90.0" text="Edytuj" />
-												<Button fx:id="Users_rental" mnemonicParsing="false" text="Wypożyczenia" />
+												<Button fx:id="Users_rent" minHeight="25.0" mnemonicParsing="false" onAction="#Retnal_User" prefWidth="90.0" text="Wypożycz" />
+												<Button fx:id="Users_adduser" minHeight="25.0" mnemonicParsing="false" onAction="#Add_Btn_User" prefWidth="120.0" text="Dodaj Użytkownika" />
+												<Button fx:id="Users_deluser" mnemonicParsing="false" onAction="#Delete_User" prefHeight="25.0" prefWidth="90.0" text="Usuń" />
+												<Button fx:id="Users_edituser" mnemonicParsing="false" onAction="#Edit_Btn_User" prefHeight="25.0" prefWidth="90.0" text="Edytuj" />
+												<Button fx:id="Users_rental" mnemonicParsing="false" onAction="#Rentals_User" text="Wypożyczenia" />
 											</children>
 											<padding>
 												<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
 											</padding>
 										</HBox>
+                              <ComboBox fx:id="Users_field" layoutX="41.0" layoutY="37.0" prefWidth="150.0" />
+                              <TextField fx:id="Users_text" layoutX="208.0" layoutY="37.0" />
 									</children>
 								</AnchorPane>
 							</content>
@@ -201,10 +203,10 @@
 																		<Font size="18.0" />
 																	</font>
 																</Label>
-																<TextField fx:id="Returns_id" editable="false" promptText="ID" />
+                                                <TextField fx:id="Returns_id" promptText="ID" />
 																<TextField fx:id="Returns_name" editable="false" promptText="Imię" />
 																<TextField fx:id="Returns_surname" editable="false" promptText="Nazwisko" />
-																<TextField fx:id="Returns_pesel" editable="false" promptText="PESEL" />
+      																<TextField fx:id="Returns_pesel" editable="false" promptText="PESEL" />
 															</children>
 															<opaqueInsets>
 																<Insets />
@@ -233,37 +235,72 @@
 								</AnchorPane>
 							</content>
 						</Tab>
-						<Tab fx:id="Returns" text="Ustawienia">
-							<content>
-								<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-									<children>
-										<VBox alignment="TOP_CENTER" prefHeight="259.0" prefWidth="296.0" spacing="20.0">
-											<children>
-												<Label prefHeight="27.0" prefWidth="95.0" text="Użytkownik">
-													<font>
-														<Font size="18.0" />
-													</font>
-												</Label>
-												<TextField fx:id="Returns_id" editable="false" promptText="ID" />
-												<TextField editable="false" promptText="Imię" />
-												<TextField editable="false" promptText="Nazwisko" />
-												<TextField editable="false" promptText="PESEL" />
-											</children>
-											<opaqueInsets>
-												<Insets />
-											</opaqueInsets>
-											<padding>
-												<Insets bottom="30.0" left="30.0" right="30.0" top="20.0" />
-											</padding>
-										</VBox>
-										<Button layoutX="89.0" layoutY="280.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="90.0" text="Zwróć" />
-									</children>
-								</AnchorPane>
-							</content>
-						</Tab>
+                  <Tab fx:id="Logout" onSelectionChanged="#Logout" text="Wyloguj się">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
 					</tabs>
 				</TabPane>
 			</children>
 		</AnchorPane>
+      <AnchorPane fx:id="EditAdd" layoutX="200.0" layoutY="48.0" prefHeight="400.0" prefWidth="300.0" visible="false">
+         <children>
+            <VBox layoutY="-2.0" prefHeight="407.0" prefWidth="300.0" spacing="20.0">
+               <children>
+                  <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="40.0">
+                     <children>
+                        <Label prefHeight="25.0" text="Imię" />
+                        <TextField fx:id="Add_name" promptText="Imię" />
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="40.0">
+                     <children>
+                        <Label alignment="CENTER_RIGHT" prefHeight="25.0" text="Nazwisko" />
+                        <TextField fx:id="Add_surname" promptText="Nazwisko" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="40.0">
+                     <children>
+                        <Label prefHeight="25.0" text="Email" />
+                        <TextField fx:id="Add_email" promptText="Email" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="40.0">
+                     <children>
+                        <Label maxHeight="25.0" text="Adres" />
+                        <TextField fx:id="Add_address" promptText="Adres" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="40.0">
+                     <children>
+                        <Label maxHeight="25.0" text="Permisje" />
+                        <ComboBox fx:id="Add_permissions" prefWidth="150.0" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="40.0">
+                     <children>
+                        <Label maxHeight="25.0" text="Pesel" />
+                        <TextField fx:id="Add_pesel" promptText="Pesel" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="40.0">
+                     <children>
+                        <Label maxHeight="25.0" text="Hasło" />
+                        <TextField fx:id="Add_password" promptText="Hasło" />
+                     </children>
+                  </HBox>
+                  <Button fx:id="Add_btn" mnemonicParsing="false" onAction="#Add_User" prefHeight="42.0" prefWidth="244.0" text="Dodaj" />
+               </children>
+               <padding>
+                  <Insets bottom="30.0" left="30.0" right="30.0" top="20.0" />
+               </padding>
+            </VBox>
+            <Button fx:id="Edit_btn" layoutX="30.0" layoutY="351.0" mnemonicParsing="false" onAction="#Edit_User" prefHeight="25.0" prefWidth="240.0" text="Edytuj" visible="false" />
+         </children>
+      </AnchorPane>
 	</children>
 </AnchorPane>
