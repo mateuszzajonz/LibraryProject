@@ -57,6 +57,18 @@ public class Books {
 		this.genre = genre;
 	}
 
+	public Books() {
+		super();
+	}
+	
+	public Books(String author, String title, String amount, String genre) {
+		super();
+		this.author = author;
+		this.title = title;
+		this.amount = amount;
+		this.genre = genre;
+	}
+	
 	public Books(int booksID, String author, String title, String availability, String amount, String genre) {
 		super();
 		this.booksID = booksID;

@@ -13,6 +13,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -25,6 +29,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.event.Event;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class Controller {
 
@@ -264,13 +270,12 @@ public class Controller {
 		Users_tableview.setItems(obslist_users);
 	}
 
-	public void Books_Tab(Event event) {		
+	public void Books_Tab(Event event) {
 		loadDB();
 		BooksDB();
 	}
 
-	public void BooksDB()
-	{
+	public void BooksDB() {
 		Books_tableview.getItems().clear();
 		try {
 			Connection con = ds.getConnection();
@@ -302,7 +307,7 @@ public class Controller {
 			System.out.print("B³¹d" + e);
 		}
 	}
-	
+
 	public void Books_DeleteBook(ActionEvent event) {
 		try {
 			Connection con = ds.getConnection();
@@ -317,6 +322,70 @@ public class Controller {
 		}
 		BooksDB();
 	}
-	
-	
+
+	public void Books_OpenNewWindowADD(ActionEvent event) {
+		try {
+			Stage stage = new Stage();
+			stage.initModality(Modality.APPLICATION_MODAL);
+			Parent root = FXMLLoader.load(getClass().getResource("NewWindow.fxml"));
+			Scene scene = new Scene(root);
+			stage.setTitle("Dodaj");
+			stage.setScene(scene);
+			stage.show();
+		} catch (Exception e) {
+			System.out.println("B³¹d: " + e);
+		}
+	}
+
+	public void Books_OpenNewWindowEDIT(ActionEvent event) {
+		Books book = Books_tableview.getSelectionModel().getSelectedItem();
+		if (book != null)
+			try {
+//				Node node = (Node) event.getSource();
+//				Stage stage = new Stage();
+//				stage = (Stage) node.getScene().getWindow();
+//				stage.setUserData(book);
+				Parent root = FXMLLoader.load(getClass().getResource("NewWindow.fxml"));
+				Scene scene = new Scene(root);
+				Stage stage1 = new Stage();
+				stage1.setUserData(book);
+				stage1.setTitle("Edytuj");
+				stage1.setScene(scene);
+				stage1.show();
+			} catch (Exception e) {
+				System.out.println("B³¹d: " + e);
+			}
+	}
+
+	public void Books_Rent(ActionEvent event) {
+		try {
+			Books book = Books_tableview.getSelectionModel().getSelectedItem();
+			String amount = Amount(book.getamount());
+			String[] word = amount.split(";");
+			Connection con = ds.getConnection();
+			PreparedStatement ps = con.prepareStatement(
+					"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = ?;");
+			ps.setInt(1, book.getbooksID());
+			ps.executeUpdate();
+			ps.close();
+			con.close();
+			BooksDB();
+		} catch (SQLException e) {
+			System.out.print("B³¹d" + e);
+		}
+	}
+
+	public String Amount(String amount) {
+		String[] word = amount.split("\\/");
+		if (Integer.parseInt(word[0]) != 0 && Integer.parseInt(word[0]) <= Integer.parseInt(word[1])) {
+			amount = (Integer.parseInt(word[0])-1) + "/" + word[1];
+			if (Integer.parseInt(word[0])-1 == 0)
+				amount += ";Brak";
+			else
+				amount += ";Dostêpne";
+		} else
+			return null;
+		return amount;
+	}
+
 }
