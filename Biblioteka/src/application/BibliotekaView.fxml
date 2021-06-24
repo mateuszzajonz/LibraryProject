@@ -68,8 +68,8 @@
 										<TextField fx:id="Books_title" layoutX="14.0" layoutY="49.0" prefHeight="25.0" prefWidth="195.0" promptText="Tytuł" />
 
 										<ComboBox fx:id="Books_type" layoutX="230.0" layoutY="14.0" prefWidth="150.0" promptText="Rodzaj" />
-										<Button fx:id="Books_search" layoutX="499.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Szukaj" />
-										<Button fx:id="Books_clear" layoutX="499.0" layoutY="49.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Wyczyść" />
+										<Button fx:id="Books_search" layoutX="499.0" layoutY="14.0" mnemonicParsing="false" onAction="#Books_Search" prefHeight="25.0" prefWidth="149.0" text="Szukaj" />
+										<Button fx:id="Books_clear" layoutX="499.0" layoutY="49.0" mnemonicParsing="false" onAction="#Books_Clear" prefHeight="25.0" prefWidth="149.0" text="Wyczyść" />
 										<HBox fx:id="Books_hboxUser" layoutY="430.0" prefHeight="41.0" prefWidth="700.0" spacing="20.0">
 											<children>
 												<Button minHeight="25.0" mnemonicParsing="false" onAction="#Bookit" prefWidth="90.0" text="Zarezerwuj" />

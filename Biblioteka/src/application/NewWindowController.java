@@ -65,8 +65,8 @@ public class NewWindowController implements Initializable {
 		thrownExcep = false;
 		Stage stage = (Stage) Books_NewWindow_set.getScene().getWindow();
 		String title = stage.getTitle();
-		if (!Books_NewWindow_author.getText().equals(null) && !Books_NewWindow_title.getText().equals(null)
-				&& !Books_NewWindow_amount.getText().equals(null) && !Books_NewWindow_genre.getText().equals(null))
+		if (!Books_NewWindow_author.getText().equals("") && !Books_NewWindow_title.getText().equals("")
+				&& !Books_NewWindow_amount.getText().equals("") && !Books_NewWindow_genre.getText().equals(""))
 			if (title.equals("Edytuj")) {
 				try {
 					Connection con = ds.getConnection();
@@ -133,6 +133,7 @@ public class NewWindowController implements Initializable {
 		}catch(Exception e)
 		{
 			System.out.print("B³¹d" + e);
+			thrownExcep = true;
 		}
 		return amount;
 	}

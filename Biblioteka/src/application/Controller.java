@@ -1,17 +1,16 @@
 package application;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-
 import org.sqlite.SQLiteDataSource;
-
-import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -26,7 +25,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
@@ -168,6 +166,8 @@ public class Controller {
 		BooksDB();
 		Add_permissions.getItems().addAll("Admin", "User");
 		Users_field.getItems().addAll("Imie", "Nazwisko", "Pesel", "Miasto");
+		GetGenre();
+		BooksDB();
 	}
 
 	public void loadDB() {
@@ -333,6 +333,36 @@ public class Controller {
 		Login.setVisible(true);
 	}
 
+	// Books
+	public void GetGenre() {
+		obslist_books.clear();
+		Books_type.getItems().clear();
+		try {
+			ResultSet rs = null;
+			Connection con = ds.getConnection();
+			rs = con.createStatement().executeQuery("Select Genre FROM Books");
+			while (rs.next()) {
+				obslist_books.add(new Books(rs.getString("Genre")));
+			}
+			rs.close();
+			con.close();
+		} catch (SQLException e) {
+			System.out.print("B³¹d" + e);
+		}
+		HashSet<String> hs = new HashSet<String>();
+		for (var genre : obslist_books) {
+			String[] word = genre.getgenre().split("/");
+			for (int i = 0; i < word.length; i++) {
+				hs.add(word[i]);
+			}
+		}
+		List<String> arrayList = new ArrayList<String>();
+		arrayList.addAll(hs);
+		for (String genre : arrayList)
+			Books_type.getItems().add(genre);
+		Books_type.setValue("Rodzaj");
+	}
+
 	public void Books_Tab(Event event) {
 		loadDB();
 	}
@@ -340,6 +370,7 @@ public class Controller {
 	public void BooksDB() {
 		obslist_books.clear();
 		try {
+			obslist_books.clear();
 			Connection con = ds.getConnection();
 			PreparedStatement pstmt = con.prepareStatement("Select * from Books");
 			ResultSet rs = pstmt.executeQuery();
@@ -412,6 +443,116 @@ public class Controller {
 			} catch (Exception e) {
 				System.out.println("B³¹d: " + e);
 			}
+	}
+//	public void Books_Rent(ActionEvent event) {
+//		try {
+//			Books book = Books_tableview.getSelectionModel().getSelectedItem();
+//			String amount = Amount(book.getamount(),false);
+//			String[] word = amount.split(";");
+//			Connection con = ds.getConnection();
+//			PreparedStatement ps = con.prepareStatement(
+//					"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = ?;");
+//			ps.setInt(1, book.getbooksID());
+//			ps.executeUpdate();
+//			ps.close();
+//			con.close();
+//			BooksDB();
+//		} catch (SQLException e) {
+//			System.out.print("B³¹d" + e);
+//		}
+//
+//	}
+
+	public void Books_Search(ActionEvent event) {
+		obslist_books.clear();
+		try {
+			Books_tableview.getItems().clear();
+			try {
+				ResultSet rs = null;
+				Connection con = ds.getConnection();
+				if (!Books_author.getText().equals("") && !Books_title.getText().equals("")) {
+					rs = con.createStatement().executeQuery("Select * FROM Books WHERE Author = '"
+							+ Books_author.getText() + "'AND Title = '" + Books_title.getText() + "';");
+				} else if (!Books_author.getText().equals("")) {
+					rs = con.createStatement()
+							.executeQuery("Select * FROM Books WHERE Author = '" + Books_author.getText() + "';");
+				} else if (!Books_title.getText().equals("")) {
+					rs = con.createStatement()
+							.executeQuery("Select * FROM Books WHERE Title = '" + Books_title.getText() + "';");
+				} else {
+					BooksDB();
+				}
+				while (rs.next()) {
+					obslist_books.add(new Books(rs.getInt("ID"), rs.getString("Author"), rs.getString("Title"),
+							rs.getString("Availability"), rs.getString("Amount"), rs.getString("Genre")));
+				}
+				rs.close();
+				con.close();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			}
+
+			try {
+				if (Books_author.getText().equals("") && Books_title.getText().equals("")) {
+				} else {
+					Books_columnID.setCellValueFactory(
+							cellData -> new SimpleIntegerProperty(cellData.getValue().getbooksID()));
+					Books_columnAuthor
+							.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getauthor()));
+					Books_columnTitle
+							.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().gettitle()));
+					Books_columnAvailability.setCellValueFactory(
+							cellData -> new SimpleStringProperty(cellData.getValue().getavailability()));
+					Books_columnAmount
+							.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getamount()));
+					Books_columnGenre
+							.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getgenre()));
+					Books_tableview.setItems(obslist_books);
+				}
+			} catch (NullPointerException e) {
+				BooksDB();
+			}
+		} catch (Exception e) {
+			System.out.print("B³¹d" + e);
+		}
+		String s = Books_type.getValue();
+		if (!"Rodzaj".equals(s) && !"".equals(s))
+			Books_SearchGenre();
+	}
+
+	public void Books_SearchGenre() {
+		String s = Books_type.getValue();
+		try {
+			ObservableList<Books> obs_genre = FXCollections.observableArrayList();
+			for (var obsList : obslist_books) {
+				if (obsList.genre.contains(s)) {
+					obs_genre.add(obsList);
+				}
+			}
+			Books_columnID.setCellValueFactory(
+					cellData -> new SimpleIntegerProperty(cellData.getValue().getbooksID()));
+			Books_columnAuthor
+					.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getauthor()));
+			Books_columnTitle
+					.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().gettitle()));
+			Books_columnAvailability.setCellValueFactory(
+					cellData -> new SimpleStringProperty(cellData.getValue().getavailability()));
+			Books_columnAmount
+					.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getamount()));
+			Books_columnGenre
+					.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getgenre()));
+			Books_tableview.setItems(obs_genre);
+		} catch (Exception e) {
+			System.out.print("B³¹d" + e);
+		}
+
+	}
+
+	public void Books_Clear() {
+		Books_author.setText("");
+		Books_title.setText("");
+		GetGenre();
+		BooksDB();
 	}
 
 	public String Amount(String amount,Boolean returns) {
@@ -509,6 +650,8 @@ public class Controller {
 		Returns_tableview.setItems(obslist_returns);
 	}
 
+	// Users
+	
 	public void UserTableView() {
 		obslist_users.clear();
 		try {
@@ -649,7 +792,7 @@ public class Controller {
 			} catch (SQLException e) {
 				System.out.print("B³¹d" + e);
 			}
-			Alert alert = new Alert(AlertType.WARNING);
+			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("");
 			alert.setHeaderText(null);
 			alert.setContentText("Zarezerwowano ksi¹¿kê");
@@ -931,4 +1074,5 @@ public class Controller {
 		Rental_surname.setText(Users_tableview.getSelectionModel().getSelectedItem().getSurname());
 		Rental_pesel.setText(Users_tableview.getSelectionModel().getSelectedItem().getPesel());
 	}
+
 }

@@ -61,6 +61,11 @@ public class Books {
 		super();
 	}
 	
+	public Books(String genre) {
+		super();
+		this.genre = genre;
+	}
+	
 	public Books(String author, String title, String amount, String genre) {
 		super();
 		this.author = author;
