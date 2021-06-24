@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import org.sqlite.SQLiteDataSource;
@@ -26,6 +28,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -58,6 +61,7 @@ public class Controller {
 	public PasswordField Login_password;
 	public Button Login_btn;
 	public Button Login_register;
+	int Login_i;
 
 	// Register
 	public TextField Register_name;
@@ -128,8 +132,15 @@ public class Controller {
 	public TextField Returns_name;
 	public TextField Returns_surname;
 	public TextField Returns_pesel;
-	public TableView<String> Returns_tableview;
+	public TableView<RentalBooks> Returns_tableview;
+	public TableColumn<RentalBooks, String> DateCol;
+	public TableColumn<RentalBooks, String> AuthorCol;
+	public TableColumn<RentalBooks, String> TitleCol;
+	public TableColumn<RentalBooks, String> GenreCol;
+	public TableColumn<RentalBooks, String> StatusCol;
 	public Button Returns_return;
+	public Button Returns_rental;
+	ObservableList<RentalBooks> obslist_returns = FXCollections.observableArrayList();
 
 	// Add Edit
 	public TextField Add_name;
@@ -154,6 +165,7 @@ public class Controller {
 
 	public void loadOnStart() {
 		loadDB();
+		BooksDB();
 		Add_permissions.getItems().addAll("Admin", "User");
 		Users_field.getItems().addAll("Imie", "Nazwisko", "Pesel", "Miasto");
 	}
@@ -173,11 +185,11 @@ public class Controller {
 		obslist_login.clear();
 		try {
 			Connection con = ds.getConnection();
-			PreparedStatement pstmt = con.prepareStatement("Select Email,Password,Permissions from Users");
+			PreparedStatement pstmt = con.prepareStatement("Select UserID,Email,Password,Permissions from Users");
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				obslist_login
-						.add(new User(rs.getString("Email"), rs.getString("Password"), rs.getString("Permissions")));
+						.add(new User(rs.getString("UserID"),rs.getString("Email"), rs.getString("Password"), rs.getString("Permissions")));
 			}
 			pstmt.close();
 			rs.close();
@@ -193,13 +205,13 @@ public class Controller {
 				Library.setVisible(true);
 				Login.setVisible(false);
 				TabPanel.getSelectionModel().select(Books);
-				if(deleted) {
-				TabPanel.getTabs().remove(Logout);
-				TabPanel.getTabs().add(Users);
-				TabPanel.getTabs().add(Rental);
-				TabPanel.getTabs().add(Returns);
-				TabPanel.getTabs().add(Logout);
-				deleted = false;
+				if (deleted) {
+					TabPanel.getTabs().remove(Logout);
+					TabPanel.getTabs().add(Users);
+					TabPanel.getTabs().add(Rental);
+					TabPanel.getTabs().add(Returns);
+					TabPanel.getTabs().add(Logout);
+					deleted = false;
 				}
 				Books_hboxUser.setVisible(false);
 				Books_hboxAdmin.setVisible(true);
@@ -217,6 +229,7 @@ public class Controller {
 				Login.setVisible(false);
 				Library.setVisible(true);
 				deleted = true;
+				Login_i = i;
 				blad = false;
 				break;
 			} else {
@@ -233,7 +246,7 @@ public class Controller {
 	}
 
 	public void register(ActionEvent event) {
-		blad=false;
+		blad = false;
 		try {
 
 			Connection con = ds.getConnection();
@@ -259,13 +272,13 @@ public class Controller {
 				break;
 			}
 		}
-		if(Register_pesel.getLength() != 11) {
+		if (Register_pesel.getLength() != 11) {
 			Alert alert = new Alert(AlertType.WARNING);
 			alert.setTitle("");
 			alert.setHeaderText(null);
 			alert.setContentText("Z³y pesel");
 			alert.showAndWait();
-			blad= true;
+			blad = true;
 		}
 		if (!blad) {
 			if (Register_password.getText().equals(Register_password2.getText())
@@ -322,11 +335,10 @@ public class Controller {
 
 	public void Books_Tab(Event event) {
 		loadDB();
-		BooksDB();
 	}
 
 	public void BooksDB() {
-		Books_tableview.getItems().clear();
+		obslist_books.clear();
 		try {
 			Connection con = ds.getConnection();
 			PreparedStatement pstmt = con.prepareStatement("Select * from Books");
@@ -402,35 +414,99 @@ public class Controller {
 			}
 	}
 
-	public void Books_Rent(ActionEvent event) {
-		try {
-			Books book = Books_tableview.getSelectionModel().getSelectedItem();
-			String amount = Amount(book.getamount());
-			String[] word = amount.split(";");
-			Connection con = ds.getConnection();
-			PreparedStatement ps = con.prepareStatement(
-					"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = ?;");
-			ps.setInt(1, book.getbooksID());
-			ps.executeUpdate();
-			ps.close();
-			con.close();
-			BooksDB();
-		} catch (SQLException e) {
-			System.out.print("B³¹d" + e);
-		}
-	}
-
-	public String Amount(String amount) {
+	public String Amount(String amount,Boolean returns) {
 		String[] word = amount.split("\\/");
-		if (Integer.parseInt(word[0]) != 0 && Integer.parseInt(word[0]) <= Integer.parseInt(word[1])) {
-			amount = (Integer.parseInt(word[0])-1) + "/" + word[1];
-			if (Integer.parseInt(word[0])-1 == 0)
+		if (!returns && Integer.parseInt(word[0]) != 0 && Integer.parseInt(word[0]) <= Integer.parseInt(word[1])) {
+			amount = (Integer.parseInt(word[0]) - 1) + "/" + word[1];
+			if (Integer.parseInt(word[0]) - 1 == 0)
 				amount += ";Brak";
 			else
 				amount += ";Dostêpne";
-		} else
-			return null;
+		}
+		if(returns) {
+			amount = (Integer.parseInt(word[0]) + 1) + "/" + word[1];
+			amount += ";Dostêpne";
+		}
 		return amount;
+	}
+
+	public void Books_Rent() {
+		Rental_author.setText(Books_tableview.getSelectionModel().getSelectedItem().getauthor());
+		Rental_title.setText(Books_tableview.getSelectionModel().getSelectedItem().gettitle());
+		Rental_type.setText(Books_tableview.getSelectionModel().getSelectedItem().getgenre());
+		Rental_bid.setText(String.valueOf(Books_tableview.getSelectionModel().getSelectedItem().getbooksID()));
+		TabPanel.getSelectionModel().select(Users);
+	}
+
+	public void Rent_rent() {
+		if (!Books_tableview.getSelectionModel().getSelectedItem().getavailability().equals("Brak")) {
+			try {
+				Books book = Books_tableview.getSelectionModel().getSelectedItem();
+				String amount = Amount(book.getamount(),false);
+				String[] word = amount.split(";");
+				Connection con = ds.getConnection();
+				PreparedStatement ps = con.prepareStatement(
+						"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = ?;");
+				ps.setInt(1, book.getbooksID());
+				ps.executeUpdate();
+				ps.close();
+				con.close();
+				BooksDB();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			}
+			try {
+				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+				LocalDateTime now = LocalDateTime.now();
+				Connection con = ds.getConnection();
+				PreparedStatement ps = con
+						.prepareStatement("INSERT INTO RentalBooks(ID_Book,ID_User,Date,Status) VALUES(?,?,?,?)");
+				ps.setString(1, Rental_bid.getText());
+				ps.setString(2, Rental_uid.getText());
+				ps.setString(3, dtf.format(now));
+				ps.setString(4, "Wypo¿yczony");
+				ps.executeUpdate();
+				ps.close();
+				con.close();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			}
+			Alert alert = new Alert(AlertType.WARNING);
+			alert.setTitle("");
+			alert.setHeaderText(null);
+			alert.setContentText("Wypo¿yczono ksi¹¿kê");
+			alert.showAndWait();
+			BooksDB();
+		} else {
+			Alert alert = new Alert(AlertType.WARNING);
+			alert.setTitle("");
+			alert.setHeaderText(null);
+			alert.setContentText("Brak dostêpnych ksi¹¿ek");
+			alert.showAndWait();
+		}
+	}
+
+	public void ReturnsTableView() {
+		obslist_returns.clear();
+		try {
+			Connection con = ds.getConnection();
+			ResultSet rs = con.createStatement().executeQuery(
+					"Select RentalBooks.Date,RentalBooks.ID_Rental,Books.ID,Users.UserID, Books.Author, Books.Title, Books.Genre, RentalBooks.Status,Books.Amount,Books.Availability FROM RentalBooks INNER JOIN Books ON RentalBooks.ID_Book = Books.ID INNER JOIN Users ON RentalBooks.ID_User = Users.UserID WHERE UserID = "
+							+ Returns_id.getText() + "");
+			while (rs.next()) {
+				obslist_returns.add(new RentalBooks(rs.getInt("ID"),rs.getString("Author"),rs.getString("Title"),rs.getString("Genre"),rs.getString("Date"),rs.getString("UserID"),rs.getInt("ID_Rental"),rs.getString("Status"),rs.getString("Amount"),rs.getString("Availability")));
+			}
+			rs.close();
+			con.close();
+		} catch (SQLException e) {
+			System.out.print("B³¹d" + e);
+		}
+		DateCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getData()));
+		AuthorCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getAuthor()));
+		TitleCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+		StatusCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatus()));
+		
+		Returns_tableview.setItems(obslist_returns);
 	}
 
 	public void UserTableView() {
@@ -465,10 +541,7 @@ public class Controller {
 	public void Logout() {
 		ButtonType foo = new ButtonType("OK", ButtonData.OK_DONE);
 		ButtonType bar = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
-		Alert alert = new Alert(AlertType.WARNING,
-		        "Czy napewno chcesz siê wylogowaæ?",
-		        foo,
-		        bar);
+		Alert alert = new Alert(AlertType.WARNING, "Czy napewno chcesz siê wylogowaæ?", foo, bar);
 
 		alert.setTitle("Date format warning");
 		Optional<ButtonType> result = alert.showAndWait();
@@ -477,13 +550,157 @@ public class Controller {
 			TabPanel.getSelectionModel().select(Books);
 			Login.setVisible(true);
 			Library.setVisible(false);
-		}
-		else {
+		} else {
 			TabPanel.getSelectionModel().select(Books);
 		}
 
 	}
+
+	public void Return() {
+		String status = Returns_tableview.getSelectionModel().getSelectedItem().getStatus();
+		if(status.equals("Wypo¿yczony")) {
+			try {
+				Connection con = ds.getConnection();
+				int ID = Returns_tableview.getSelectionModel().getSelectedItem().getRentalID();
+				PreparedStatement ps = con.prepareStatement("DELETE FROM RentalBooks WHERE ID_Rental = "+ID+"");
+				ps.executeUpdate();
+				ps.close();
+				con.close();
+				Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setTitle("");
+				alert.setHeaderText(null);
+				alert.setContentText("Zwrócono pomyœlnie");
+				alert.showAndWait();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			} catch (NullPointerException e) {
+
+			}
+			try {
+				Connection con = ds.getConnection();
+				String amount = Amount(Returns_tableview.getSelectionModel().getSelectedItem().getAmount(),true);
+				String[] word = amount.split(";");
+				int ID = Returns_tableview.getSelectionModel().getSelectedItem().getBooksID();
+				PreparedStatement rs = con.prepareStatement(
+						"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = "+ ID +"");
+				rs.executeUpdate();
+				rs.close();
+				con.close();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			}
+			BooksDB();
+			ReturnsTableView();
+		}
+	}
 	
+	public void Rental() {
+		String status = Returns_tableview.getSelectionModel().getSelectedItem().getStatus();
+		if(status.equals("Zarezerwowano")) {
+			try {
+				Connection con = ds.getConnection();
+				PreparedStatement ps = con.prepareStatement("UPDATE RentalBooks SET Status = 'Wypo¿yczony' WHERE ID_Rental = "+Returns_tableview.getSelectionModel().getSelectedItem().getRentalID()+"");
+				ps.executeUpdate();
+				ps.close();
+				con.close();
+				Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setTitle("");
+				alert.setHeaderText(null);
+				alert.setContentText("Wypo¿yczono pomyœlnie");
+				alert.showAndWait();
+				ReturnsTableView();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			}
+		}
+		
+	}
+	
+	public void Bookit() {
+		if (!Books_tableview.getSelectionModel().getSelectedItem().getavailability().equals("Brak")) {
+			try {
+				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+				LocalDateTime now = LocalDateTime.now();
+				Connection con = ds.getConnection();
+				PreparedStatement ps = con
+						.prepareStatement("INSERT INTO RentalBooks(ID_Book,ID_User,Date,Status) VALUES(?,?,?,?)");
+				ps.setString(1, String.valueOf(Books_tableview.getSelectionModel().getSelectedItem().getbooksID()));
+				ps.setString(2, obslist_login.get(Login_i).getUserID());
+				ps.setString(3, dtf.format(now));
+				ps.setString(4, "Zarezerwowano");
+				ps.executeUpdate();
+				ps.close();
+				con.close();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			}
+			try {
+				Books book = Books_tableview.getSelectionModel().getSelectedItem();
+				String amount = Amount(book.getamount(),false);
+				String[] word = amount.split(";");
+				Connection con = ds.getConnection();
+				PreparedStatement ps = con.prepareStatement(
+						"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = ?;");
+				ps.setInt(1, book.getbooksID());
+				ps.executeUpdate();
+				ps.close();
+				con.close();
+				BooksDB();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			}
+			Alert alert = new Alert(AlertType.WARNING);
+			alert.setTitle("");
+			alert.setHeaderText(null);
+			alert.setContentText("Zarezerwowano ksi¹¿kê");
+			alert.showAndWait();
+			BooksDB();
+		} else {
+			Alert alert = new Alert(AlertType.WARNING);
+			alert.setTitle("");
+			alert.setHeaderText(null);
+			alert.setContentText("Brak dostêpnych ksi¹¿ek");
+			alert.showAndWait();
+		}
+	}
+	
+	public void Cancel() {
+		String status = Returns_tableview.getSelectionModel().getSelectedItem().getStatus();
+		if(status.equals("Zarezerwowano")) {
+			try {
+				Connection con = ds.getConnection();
+				int ID = Returns_tableview.getSelectionModel().getSelectedItem().getRentalID();
+				PreparedStatement ps = con.prepareStatement("DELETE FROM RentalBooks WHERE ID_Rental = "+ID+"");
+				ps.executeUpdate();
+				ps.close();
+				con.close();
+				Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setTitle("");
+				alert.setHeaderText(null);
+				alert.setContentText("Anulowano pomyœlnie");
+				alert.showAndWait();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			} catch (NullPointerException e) {
+
+			}
+			try {
+				Connection con = ds.getConnection();
+				String amount = Amount(Returns_tableview.getSelectionModel().getSelectedItem().getAmount(),true);
+				String[] word = amount.split(";");
+				int ID = Returns_tableview.getSelectionModel().getSelectedItem().getBooksID();
+				PreparedStatement rs = con.prepareStatement(
+						"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = "+ ID +"");
+				rs.executeUpdate();
+				rs.close();
+				con.close();
+			} catch (SQLException e) {
+				System.out.print("B³¹d" + e);
+			}
+			BooksDB();
+			ReturnsTableView();
+		}
+	}
 	// Users
 	public void Delete_User() {
 		try {
@@ -510,30 +727,30 @@ public class Controller {
 			if (!Users_text.getText().equals("")) {
 				switch (Users_field.getValue()) {
 				case "Imie":
-					rs = con.createStatement()
-							.executeQuery("Select UserID,Name,Surname,Email,Pesel,Address,Password,Permissions FROM Users WHERE Name = '"
+					rs = con.createStatement().executeQuery(
+							"Select UserID,Name,Surname,Email,Pesel,Address,Password,Permissions FROM Users WHERE Name = '"
 									+ Users_text.getText() + "'");
 					break;
 				case "Nazwisko":
-					rs = con.createStatement()
-							.executeQuery("Select UserID,Name,Surname,Email,Pesel,Address,Password,Permissions FROM Users WHERE Surname = '"
+					rs = con.createStatement().executeQuery(
+							"Select UserID,Name,Surname,Email,Pesel,Address,Password,Permissions FROM Users WHERE Surname = '"
 									+ Users_text.getText() + "'");
 					break;
 				case "Pesel":
-					rs = con.createStatement()
-							.executeQuery("Select UserID,Name,Surname,Email,Pesel,Address,Password,Permissions FROM Users WHERE Pesel = '"
+					rs = con.createStatement().executeQuery(
+							"Select UserID,Name,Surname,Email,Pesel,Address,Password,Permissions FROM Users WHERE Pesel = '"
 									+ Users_text.getText() + "'");
 					break;
 				case "Miasto":
-					rs = con.createStatement()
-							.executeQuery("Select UserID,Name,Surname,Email,Pesel,Address,Password,Permissions FROM Users WHERE Address LIKE '%"
+					rs = con.createStatement().executeQuery(
+							"Select UserID,Name,Surname,Email,Pesel,Address,Password,Permissions FROM Users WHERE Address LIKE '%"
 									+ Users_text.getText() + "%'");
 					break;
 				}
 				while (rs.next()) {
-					obslist_select_users.add(new User(rs.getString("UserID"), rs.getString("Name"), rs.getString("Surname"),
-							rs.getString("Email"), rs.getString("Pesel"), rs.getString("Address"), rs.getString("Password"),
-							rs.getString("Permissions")));
+					obslist_select_users.add(new User(rs.getString("UserID"), rs.getString("Name"),
+							rs.getString("Surname"), rs.getString("Email"), rs.getString("Pesel"),
+							rs.getString("Address"), rs.getString("Password"), rs.getString("Permissions")));
 				}
 				rs.close();
 				con.close();
@@ -543,10 +760,12 @@ public class Controller {
 				NameCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
 				PeselCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPesel()));
 				AddressCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getAddress()));
-				PermissionCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPermissions()));
-				PasswordCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPassword()));
+				PermissionCol.setCellValueFactory(
+						cellData -> new SimpleStringProperty(cellData.getValue().getPermissions()));
+				PasswordCol
+						.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPassword()));
 				EmailCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getEmail()));
-				
+
 				Users_tableview.setItems(obslist_select_users);
 			} else {
 				UserTableView();
@@ -556,6 +775,7 @@ public class Controller {
 		} catch (NullPointerException e) {
 			UserTableView();
 		}
+
 	}
 
 	public void Add_Btn_User() {
@@ -598,13 +818,13 @@ public class Controller {
 				break;
 			}
 		}
-		if(Register_pesel.getLength() != 11) {
+		if (Register_pesel.getLength() != 11) {
 			Alert alert = new Alert(AlertType.WARNING);
 			alert.setTitle("");
 			alert.setHeaderText(null);
 			alert.setContentText("Z³y pesel");
 			alert.showAndWait();
-			blad= true;
+			blad = true;
 		}
 		if (!blad) {
 			if (Add_password.getLength() >= 8) {
@@ -701,7 +921,7 @@ public class Controller {
 		Returns_name.setText(Users_tableview.getSelectionModel().getSelectedItem().getName());
 		Returns_surname.setText(Users_tableview.getSelectionModel().getSelectedItem().getSurname());
 		Returns_pesel.setText(Users_tableview.getSelectionModel().getSelectedItem().getPesel());
-
+		ReturnsTableView();
 	}
 
 	public void Retnal_User(ActionEvent event) {

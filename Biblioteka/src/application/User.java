@@ -62,8 +62,9 @@ public class User {
 		super();
 		this.Email = email;
 	}
-	public User(String email, String password,String permissions) {
+	public User(String userID,String email, String password,String permissions) {
 		super();
+		this.UserID = userID;
 		this.Email = email;
 		this.Password = password;
 		this.Permissions = permissions;
