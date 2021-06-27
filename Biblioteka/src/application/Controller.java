@@ -188,8 +188,8 @@ public class Controller {
 			PreparedStatement pstmt = con.prepareStatement("Select UserID,Email,Password,Permissions from Users");
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				obslist_login
-						.add(new User(rs.getString("UserID"),rs.getString("Email"), rs.getString("Password"), rs.getString("Permissions")));
+				obslist_login.add(new User(rs.getString("UserID"), rs.getString("Email"), rs.getString("Password"),
+						rs.getString("Permissions")));
 			}
 			pstmt.close();
 			rs.close();
@@ -444,24 +444,6 @@ public class Controller {
 				System.out.println("B³¹d: " + e);
 			}
 	}
-//	public void Books_Rent(ActionEvent event) {
-//		try {
-//			Books book = Books_tableview.getSelectionModel().getSelectedItem();
-//			String amount = Amount(book.getamount(),false);
-//			String[] word = amount.split(";");
-//			Connection con = ds.getConnection();
-//			PreparedStatement ps = con.prepareStatement(
-//					"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = ?;");
-//			ps.setInt(1, book.getbooksID());
-//			ps.executeUpdate();
-//			ps.close();
-//			con.close();
-//			BooksDB();
-//		} catch (SQLException e) {
-//			System.out.print("B³¹d" + e);
-//		}
-//
-//	}
 
 	public void Books_Search(ActionEvent event) {
 		obslist_books.clear();
@@ -529,18 +511,15 @@ public class Controller {
 					obs_genre.add(obsList);
 				}
 			}
-			Books_columnID.setCellValueFactory(
-					cellData -> new SimpleIntegerProperty(cellData.getValue().getbooksID()));
+			Books_columnID.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getbooksID()));
 			Books_columnAuthor
 					.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getauthor()));
-			Books_columnTitle
-					.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().gettitle()));
-			Books_columnAvailability.setCellValueFactory(
-					cellData -> new SimpleStringProperty(cellData.getValue().getavailability()));
+			Books_columnTitle.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().gettitle()));
+			Books_columnAvailability
+					.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getavailability()));
 			Books_columnAmount
 					.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getamount()));
-			Books_columnGenre
-					.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getgenre()));
+			Books_columnGenre.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getgenre()));
 			Books_tableview.setItems(obs_genre);
 		} catch (Exception e) {
 			System.out.print("B³¹d" + e);
@@ -555,7 +534,7 @@ public class Controller {
 		BooksDB();
 	}
 
-	public String Amount(String amount,Boolean returns) {
+	public String Amount(String amount, Boolean returns) {
 		String[] word = amount.split("\\/");
 		if (!returns && Integer.parseInt(word[0]) != 0 && Integer.parseInt(word[0]) <= Integer.parseInt(word[1])) {
 			amount = (Integer.parseInt(word[0]) - 1) + "/" + word[1];
@@ -564,7 +543,7 @@ public class Controller {
 			else
 				amount += ";Dostêpne";
 		}
-		if(returns) {
+		if (returns) {
 			amount = (Integer.parseInt(word[0]) + 1) + "/" + word[1];
 			amount += ";Dostêpne";
 		}
@@ -583,7 +562,7 @@ public class Controller {
 		if (!Books_tableview.getSelectionModel().getSelectedItem().getavailability().equals("Brak")) {
 			try {
 				Books book = Books_tableview.getSelectionModel().getSelectedItem();
-				String amount = Amount(book.getamount(),false);
+				String amount = Amount(book.getamount(), false);
 				String[] word = amount.split(";");
 				Connection con = ds.getConnection();
 				PreparedStatement ps = con.prepareStatement(
@@ -635,7 +614,9 @@ public class Controller {
 					"Select RentalBooks.Date,RentalBooks.ID_Rental,Books.ID,Users.UserID, Books.Author, Books.Title, Books.Genre, RentalBooks.Status,Books.Amount,Books.Availability FROM RentalBooks INNER JOIN Books ON RentalBooks.ID_Book = Books.ID INNER JOIN Users ON RentalBooks.ID_User = Users.UserID WHERE UserID = "
 							+ Returns_id.getText() + "");
 			while (rs.next()) {
-				obslist_returns.add(new RentalBooks(rs.getInt("ID"),rs.getString("Author"),rs.getString("Title"),rs.getString("Genre"),rs.getString("Date"),rs.getString("UserID"),rs.getInt("ID_Rental"),rs.getString("Status"),rs.getString("Amount"),rs.getString("Availability")));
+				obslist_returns.add(new RentalBooks(rs.getInt("ID"), rs.getString("Author"), rs.getString("Title"),
+						rs.getString("Genre"), rs.getString("Date"), rs.getString("UserID"), rs.getInt("ID_Rental"),
+						rs.getString("Status"), rs.getString("Amount"), rs.getString("Availability")));
 			}
 			rs.close();
 			con.close();
@@ -646,12 +627,12 @@ public class Controller {
 		AuthorCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getAuthor()));
 		TitleCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
 		StatusCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatus()));
-		
+
 		Returns_tableview.setItems(obslist_returns);
 	}
 
 	// Users
-	
+
 	public void UserTableView() {
 		obslist_users.clear();
 		try {
@@ -700,150 +681,169 @@ public class Controller {
 	}
 
 	public void Return() {
-		String status = Returns_tableview.getSelectionModel().getSelectedItem().getStatus();
-		if(status.equals("Wypo¿yczony")) {
-			try {
-				Connection con = ds.getConnection();
-				int ID = Returns_tableview.getSelectionModel().getSelectedItem().getRentalID();
-				PreparedStatement ps = con.prepareStatement("DELETE FROM RentalBooks WHERE ID_Rental = "+ID+"");
-				ps.executeUpdate();
-				ps.close();
-				con.close();
-				Alert alert = new Alert(AlertType.INFORMATION);
-				alert.setTitle("");
-				alert.setHeaderText(null);
-				alert.setContentText("Zwrócono pomyœlnie");
-				alert.showAndWait();
-			} catch (SQLException e) {
-				System.out.print("B³¹d" + e);
-			} catch (NullPointerException e) {
+		try {
+			String status = Returns_tableview.getSelectionModel().getSelectedItem().getStatus();
+			if (status.equals("Wypo¿yczony")) {
+				try {
+					Connection con = ds.getConnection();
+					int ID = Returns_tableview.getSelectionModel().getSelectedItem().getRentalID();
+					PreparedStatement ps = con.prepareStatement("DELETE FROM RentalBooks WHERE ID_Rental = " + ID + "");
+					ps.executeUpdate();
+					ps.close();
+					con.close();
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setTitle("");
+					alert.setHeaderText(null);
+					alert.setContentText("Zwrócono pomyœlnie");
+					alert.showAndWait();
+				} catch (SQLException e) {
+					System.out.print("B³¹d" + e);
+				} catch (NullPointerException e) {
 
-			}
-			try {
-				Connection con = ds.getConnection();
-				String amount = Amount(Returns_tableview.getSelectionModel().getSelectedItem().getAmount(),true);
-				String[] word = amount.split(";");
-				int ID = Returns_tableview.getSelectionModel().getSelectedItem().getBooksID();
-				PreparedStatement rs = con.prepareStatement(
-						"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = "+ ID +"");
-				rs.executeUpdate();
-				rs.close();
-				con.close();
-			} catch (SQLException e) {
-				System.out.print("B³¹d" + e);
-			}
-			BooksDB();
-			ReturnsTableView();
-		}
-	}
-	
-	public void Rental() {
-		String status = Returns_tableview.getSelectionModel().getSelectedItem().getStatus();
-		if(status.equals("Zarezerwowano")) {
-			try {
-				Connection con = ds.getConnection();
-				PreparedStatement ps = con.prepareStatement("UPDATE RentalBooks SET Status = 'Wypo¿yczony' WHERE ID_Rental = "+Returns_tableview.getSelectionModel().getSelectedItem().getRentalID()+"");
-				ps.executeUpdate();
-				ps.close();
-				con.close();
-				Alert alert = new Alert(AlertType.INFORMATION);
-				alert.setTitle("");
-				alert.setHeaderText(null);
-				alert.setContentText("Wypo¿yczono pomyœlnie");
-				alert.showAndWait();
-				ReturnsTableView();
-			} catch (SQLException e) {
-				System.out.print("B³¹d" + e);
-			}
-		}
-		
-	}
-	
-	public void Bookit() {
-		if (!Books_tableview.getSelectionModel().getSelectedItem().getavailability().equals("Brak")) {
-			try {
-				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-				LocalDateTime now = LocalDateTime.now();
-				Connection con = ds.getConnection();
-				PreparedStatement ps = con
-						.prepareStatement("INSERT INTO RentalBooks(ID_Book,ID_User,Date,Status) VALUES(?,?,?,?)");
-				ps.setString(1, String.valueOf(Books_tableview.getSelectionModel().getSelectedItem().getbooksID()));
-				ps.setString(2, obslist_login.get(Login_i).getUserID());
-				ps.setString(3, dtf.format(now));
-				ps.setString(4, "Zarezerwowano");
-				ps.executeUpdate();
-				ps.close();
-				con.close();
-			} catch (SQLException e) {
-				System.out.print("B³¹d" + e);
-			}
-			try {
-				Books book = Books_tableview.getSelectionModel().getSelectedItem();
-				String amount = Amount(book.getamount(),false);
-				String[] word = amount.split(";");
-				Connection con = ds.getConnection();
-				PreparedStatement ps = con.prepareStatement(
-						"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = ?;");
-				ps.setInt(1, book.getbooksID());
-				ps.executeUpdate();
-				ps.close();
-				con.close();
+				}
+				try {
+					Connection con = ds.getConnection();
+					String amount = Amount(Returns_tableview.getSelectionModel().getSelectedItem().getAmount(), true);
+					String[] word = amount.split(";");
+					int ID = Returns_tableview.getSelectionModel().getSelectedItem().getBooksID();
+					PreparedStatement rs = con.prepareStatement("UPDATE Books SET Availability ='" + word[1]
+							+ "', Amount = '" + word[0] + "' WHERE ID = " + ID + "");
+					rs.executeUpdate();
+					rs.close();
+					con.close();
+				} catch (SQLException e) {
+					System.out.print("B³¹d" + e);
+				}
 				BooksDB();
-			} catch (SQLException e) {
-				System.out.print("B³¹d" + e);
+				ReturnsTableView();
 			}
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("");
-			alert.setHeaderText(null);
-			alert.setContentText("Zarezerwowano ksi¹¿kê");
-			alert.showAndWait();
-			BooksDB();
-		} else {
-			Alert alert = new Alert(AlertType.WARNING);
-			alert.setTitle("");
-			alert.setHeaderText(null);
-			alert.setContentText("Brak dostêpnych ksi¹¿ek");
-			alert.showAndWait();
+		} catch (NullPointerException e) {
+
 		}
 	}
-	
-	public void Cancel() {
-		String status = Returns_tableview.getSelectionModel().getSelectedItem().getStatus();
-		if(status.equals("Zarezerwowano")) {
-			try {
-				Connection con = ds.getConnection();
-				int ID = Returns_tableview.getSelectionModel().getSelectedItem().getRentalID();
-				PreparedStatement ps = con.prepareStatement("DELETE FROM RentalBooks WHERE ID_Rental = "+ID+"");
-				ps.executeUpdate();
-				ps.close();
-				con.close();
+
+	public void Rental() {
+		try {
+			String status = Returns_tableview.getSelectionModel().getSelectedItem().getStatus();
+			if (status.equals("Zarezerwowano")) {
+				try {
+					Connection con = ds.getConnection();
+					PreparedStatement ps = con
+							.prepareStatement("UPDATE RentalBooks SET Status = 'Wypo¿yczony' WHERE ID_Rental = "
+									+ Returns_tableview.getSelectionModel().getSelectedItem().getRentalID() + "");
+					ps.executeUpdate();
+					ps.close();
+					con.close();
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setTitle("");
+					alert.setHeaderText(null);
+					alert.setContentText("Wypo¿yczono pomyœlnie");
+					alert.showAndWait();
+					ReturnsTableView();
+				} catch (SQLException e) {
+					System.out.print("B³¹d" + e);
+				}
+			}
+		} catch (NullPointerException e) {
+
+		}
+
+	}
+
+	public void Bookit() {
+		try {
+			if (!Books_tableview.getSelectionModel().getSelectedItem().getavailability().equals("Brak")) {
+				try {
+					DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+					LocalDateTime now = LocalDateTime.now();
+					Connection con = ds.getConnection();
+					PreparedStatement ps = con
+							.prepareStatement("INSERT INTO RentalBooks(ID_Book,ID_User,Date,Status) VALUES(?,?,?,?)");
+					ps.setString(1, String.valueOf(Books_tableview.getSelectionModel().getSelectedItem().getbooksID()));
+					ps.setString(2, obslist_login.get(Login_i).getUserID());
+					ps.setString(3, dtf.format(now));
+					ps.setString(4, "Zarezerwowano");
+					ps.executeUpdate();
+					ps.close();
+					con.close();
+				} catch (SQLException e) {
+					System.out.print("B³¹d" + e);
+				}
+				try {
+					Books book = Books_tableview.getSelectionModel().getSelectedItem();
+					String amount = Amount(book.getamount(), false);
+					String[] word = amount.split(";");
+					Connection con = ds.getConnection();
+					PreparedStatement ps = con.prepareStatement("UPDATE Books SET Availability ='" + word[1]
+							+ "', Amount = '" + word[0] + "' WHERE ID = ?;");
+					ps.setInt(1, book.getbooksID());
+					ps.executeUpdate();
+					ps.close();
+					con.close();
+					BooksDB();
+				} catch (SQLException e) {
+					System.out.print("B³¹d" + e);
+				}
 				Alert alert = new Alert(AlertType.INFORMATION);
 				alert.setTitle("");
 				alert.setHeaderText(null);
-				alert.setContentText("Anulowano pomyœlnie");
+				alert.setContentText("Zarezerwowano ksi¹¿kê");
 				alert.showAndWait();
-			} catch (SQLException e) {
-				System.out.print("B³¹d" + e);
-			} catch (NullPointerException e) {
+				BooksDB();
+			} else {
+				Alert alert = new Alert(AlertType.WARNING);
+				alert.setTitle("");
+				alert.setHeaderText(null);
+				alert.setContentText("Brak dostêpnych ksi¹¿ek");
+				alert.showAndWait();
+			}
+		} catch (NullPointerException e) {
 
-			}
-			try {
-				Connection con = ds.getConnection();
-				String amount = Amount(Returns_tableview.getSelectionModel().getSelectedItem().getAmount(),true);
-				String[] word = amount.split(";");
-				int ID = Returns_tableview.getSelectionModel().getSelectedItem().getBooksID();
-				PreparedStatement rs = con.prepareStatement(
-						"UPDATE Books SET Availability ='" + word[1] + "', Amount = '" + word[0] + "' WHERE ID = "+ ID +"");
-				rs.executeUpdate();
-				rs.close();
-				con.close();
-			} catch (SQLException e) {
-				System.out.print("B³¹d" + e);
-			}
-			BooksDB();
-			ReturnsTableView();
 		}
 	}
+
+	public void Cancel() {
+		try {
+			String status = Returns_tableview.getSelectionModel().getSelectedItem().getStatus();
+			if (status.equals("Zarezerwowano")) {
+				try {
+					Connection con = ds.getConnection();
+					int ID = Returns_tableview.getSelectionModel().getSelectedItem().getRentalID();
+					PreparedStatement ps = con.prepareStatement("DELETE FROM RentalBooks WHERE ID_Rental = " + ID + "");
+					ps.executeUpdate();
+					ps.close();
+					con.close();
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setTitle("");
+					alert.setHeaderText(null);
+					alert.setContentText("Anulowano pomyœlnie");
+					alert.showAndWait();
+				} catch (SQLException e) {
+					System.out.print("B³¹d" + e);
+				} catch (NullPointerException e) {
+
+				}
+				try {
+					Connection con = ds.getConnection();
+					String amount = Amount(Returns_tableview.getSelectionModel().getSelectedItem().getAmount(), true);
+					String[] word = amount.split(";");
+					int ID = Returns_tableview.getSelectionModel().getSelectedItem().getBooksID();
+					PreparedStatement rs = con.prepareStatement("UPDATE Books SET Availability ='" + word[1]
+							+ "', Amount = '" + word[0] + "' WHERE ID = " + ID + "");
+					rs.executeUpdate();
+					rs.close();
+					con.close();
+				} catch (SQLException e) {
+					System.out.print("B³¹d" + e);
+				}
+				BooksDB();
+				ReturnsTableView();
+			}
+		} catch (NullPointerException e) {
+
+		}
+	}
+
 	// Users
 	public void Delete_User() {
 		try {
@@ -1007,41 +1007,46 @@ public class Controller {
 	}
 
 	public void Edit_User() {
-		blad = false;
-		if (Add_password.getLength() >= 8) {
-			try {
-				Connection con = ds.getConnection();
-				PreparedStatement ps = con.prepareStatement("UPDATE Users SET Name = '" + Add_name.getText()
-						+ "', Surname = '" + Add_surname.getText() + "',Email = '" + Add_email.getText()
-						+ "',Address = '" + Add_address.getText() + "',Password = '" + Add_password.getText()
-						+ "',Permissions = '" + Add_permissions.getValue() + "',Pesel = '" + Add_pesel.getText()
-						+ "' WHERE UserID = " + Users_tableview.getSelectionModel().getSelectedItem().getUserID() + "");
-				ps.executeUpdate();
-				ps.close();
-				con.close();
-			} catch (SQLException e) {
-				System.out.print("B³¹d" + e);
+		try {
+			blad = false;
+			if (Add_password.getLength() >= 8) {
+				try {
+					Connection con = ds.getConnection();
+					PreparedStatement ps = con.prepareStatement("UPDATE Users SET Name = '" + Add_name.getText()
+							+ "', Surname = '" + Add_surname.getText() + "',Email = '" + Add_email.getText()
+							+ "',Address = '" + Add_address.getText() + "',Password = '" + Add_password.getText()
+							+ "',Permissions = '" + Add_permissions.getValue() + "',Pesel = '" + Add_pesel.getText()
+							+ "' WHERE UserID = " + Users_tableview.getSelectionModel().getSelectedItem().getUserID()
+							+ "");
+					ps.executeUpdate();
+					ps.close();
+					con.close();
+				} catch (SQLException e) {
+					System.out.print("B³¹d" + e);
+				}
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("");
+				alert.setHeaderText(null);
+				alert.setContentText("Pomyœlnie edytowano");
+				alert.showAndWait();
+				Library.setVisible(true);
+				EditAdd.setVisible(false);
+				UserTableView();
+			} else {
+				Alert alert = new Alert(AlertType.WARNING);
+				alert.setTitle("");
+				alert.setHeaderText(null);
+				alert.setContentText("Z³e has³o lub has³o ma mniej ni¿ 8 znaków");
+				alert.showAndWait();
 			}
-			Alert alert = new Alert(AlertType.CONFIRMATION);
-			alert.setTitle("");
-			alert.setHeaderText(null);
-			alert.setContentText("Pomyœlnie edytowano");
-			alert.showAndWait();
-			Library.setVisible(true);
-			EditAdd.setVisible(false);
-			UserTableView();
-		} else {
-			Alert alert = new Alert(AlertType.WARNING);
-			alert.setTitle("");
-			alert.setHeaderText(null);
-			alert.setContentText("Z³e has³o lub has³o ma mniej ni¿ 8 znaków");
-			alert.showAndWait();
+		} catch (NullPointerException e) {
+
 		}
 	}
 
 	public void Clear_User(ActionEvent event) {
 		Users_text.clear();
-		Users_field.valueProperty().set(null);
+		Users_field.setValue("Wybierz");
 	}
 
 	public void Edit_Btn_User(ActionEvent event) {
